@@ -1,8 +1,9 @@
 import { useState, FormEvent, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { Eye, EyeOff, CheckCircle2, Mail } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { LoginFormData } from '../types'
+import toast from 'react-hot-toast'
 
 const Login = () => {
   const [searchParams] = useSearchParams()

@@ -104,7 +104,7 @@ const Register = () => {
       if (!authData) throw new Error('No user data returned')
 
       // Check if email confirmation is required
-      if (authData.user && !authData.user.email_confirmed_at) {
+      if (authData && !(authData as any).email_confirmed_at) {
         // Email confirmation required - show success message with instructions
         toast.success('Registration successful! Please check your email and click the confirmation link to complete your registration.')
         
@@ -146,9 +146,9 @@ const Register = () => {
         used_at: new Date().toISOString()
       }
       
-      const { error: updateError } = await supabase
+      const { error: updateError } = await (supabase as any)
         .from('invite_links')
-        .update(updateData as any)
+        .update(updateData)
         .eq('token', token || '')
 
       if (updateError) throw updateError

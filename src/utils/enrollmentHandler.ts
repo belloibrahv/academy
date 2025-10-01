@@ -31,12 +31,12 @@ export const handlePendingEnrollment = async (userId: string): Promise<void> => 
     }
 
     // Mark invite as used
-    const { error: updateError } = await supabase
+    const { error: updateError } = await (supabase as any)
       .from('invite_links')
       .update({ 
         used: true, 
         used_at: new Date().toISOString() 
-      } as any)
+      })
       .eq('token', pendingInvite.token)
 
     if (updateError) {
