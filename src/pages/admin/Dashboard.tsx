@@ -18,18 +18,55 @@ const Dashboard = () => {
   const fetchStats = async (): Promise<void> => {
     try {
       // Fetch total students
-      const { count: totalStudents } = await supabase
+      const { data: totalStudentsData } = await supabase
         .from('profiles')
-        .select('*', { count: 'exact', head: true })
+        .select('id')
         .eq('role', 'student')
+      const totalStudents = totalStudentsData?.length || 0
 
       // Fetch active students
-      const { count: activeStudents } = await supabase
+      const { data: activeStudentsData } = await supabase
         .from('profiles')
-        .select('*', { count: 'exact', head: true })
+        .select('id')
         .eq('role', 'student')
         .eq('registration_status', 'active')
+      const activeStudents = activeStudentsData?.length || 0
 
+<<<<<<< HEAD
+=======
+      // Fetch total cohorts
+      const { data: totalCohortsData } = await supabase
+        .from('cohorts')
+        .select('id')
+      const totalCohorts = totalCohortsData?.length || 0
+
+      // Fetch active cohorts
+      const { data: activeCohortsData } = await supabase
+        .from('cohorts')
+        .select('id')
+        .eq('status', 'active')
+      const activeCohorts = activeCohortsData?.length || 0
+
+      // Fetch pending submissions
+      const { data: pendingSubmissionsData } = await supabase
+        .from('submissions')
+        .select('id')
+        .eq('status', 'pending')
+      const pendingSubmissions = pendingSubmissionsData?.length || 0
+
+      // Calculate completion rate
+      const { data: completedData } = await supabase
+        .from('student_cohorts')
+        .select('completion_status')
+      
+      const avgCompletion = completedData && completedData.length > 0
+        ? completedData.reduce((acc, curr) => {
+            const status = (curr as { completion_status: number }).completion_status
+            return acc + (status || 0)
+          }, 0) / completedData.length
+        : 0
+
+>>>>>>> 1066b71 (Fix critical Supabase query syntax errors and improve testing)
       setStats({
         totalStudents: totalStudents || 0,
         activeStudents: activeStudents || 0,
