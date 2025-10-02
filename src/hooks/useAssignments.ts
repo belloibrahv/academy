@@ -33,6 +33,8 @@ export const useAssignments = () => {
 
   const createAssignment = async (assignmentData: Omit<Assignment, 'id' | 'created_at' | 'updated_at'>) => {
     try {
+      console.log('Creating assignment with data:', assignmentData)
+      
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await supabase
         .from('assignments')
@@ -41,14 +43,19 @@ export const useAssignments = () => {
         .select('*, cohorts(*)')
         .single()
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error:', error)
+        throw error
+      }
 
+      console.log('Assignment created successfully:', data)
       toast.success('Assignment created successfully!')
       await fetchAssignments()
       return { data: data as AssignmentWithCohort, error: null }
     } catch (err) {
       const error = err as Error
-      toast.error('Failed to create assignment')
+      console.error('Assignment creation error:', error)
+      toast.error(`Failed to create assignment: ${error.message}`)
       return { data: null, error }
     }
   }
@@ -56,8 +63,8 @@ export const useAssignments = () => {
   const updateAssignment = async (id: string, updates: Partial<Assignment>) => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error } = await (supabase
-        .from('assignments') as any)
+      const { data, error } = await (supabase as any)
+        .from('assignments')
         .update(updates)
         .eq('id', id)
         .select('*, cohorts(*)')

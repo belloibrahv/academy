@@ -93,6 +93,7 @@ const AssignmentForm = ({
       file_url: formData.file_url.trim() || null,
     } as Omit<Assignment, 'id' | 'created_at' | 'updated_at'>
 
+    console.log('Assignment form data being submitted:', assignmentData)
     await onSubmit(assignmentData)
   }
 
