@@ -55,16 +55,69 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const fetchProfile = async (userId: string): Promise<void> => {
     try {
+      console.log('Fetching profile for user ID:', userId)
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', userId)
         .single()
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase profile fetch error:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        })
+        throw error
+      }
+      
+      console.log('Profile fetched successfully:', data)
       setProfile(data as Profile)
     } catch (error) {
       console.error('Error fetching profile:', error)
+      
+      // If profile doesn't exist, create a default one for the user
+      if (error && typeof error === 'object' && 'code' in error) {
+        const supabaseError = error as any
+        
+        if (supabaseError.code === 'PGRST116' || supabaseError.message?.includes('No rows found')) {
+          console.log('Profile not found, attempting to create default profile for user:', userId)
+          
+          try {
+            // Get user email from auth
+            const { data: authUser } = await supabase.auth.getUser()
+            if (authUser.user) {
+              const defaultProfile = {
+                user_id: userId,
+                full_name: authUser.user.email?.split('@')[0] || 'User',
+                role: 'student' as const,
+                registration_status: 'active' as const,
+              }
+              
+              const { data: newProfile, error: createError } = await supabase
+                .from('profiles')
+                .insert(defaultProfile)
+                .select()
+                .single()
+              
+              if (createError) {
+                console.error('Failed to create default profile:', createError)
+              } else {
+                console.log('Default profile created successfully:', newProfile)
+                setProfile(newProfile as Profile)
+                return
+              }
+            }
+          } catch (createError) {
+            console.error('Error creating default profile:', createError)
+          }
+        }
+      }
+      
+      // Set loading to false even on error to prevent infinite loading
+      setLoading(false)
     } finally {
       setLoading(false)
     }
