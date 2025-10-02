@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { BookOpen, FileCheck, Clock, TrendingUp } from 'lucide-react'
 import { StudentDashboardStats, StudentCohortWithDetails } from '../../types'
+import toast from 'react-hot-toast'
 
 const Dashboard = () => {
   const { user } = useAuth()
@@ -28,18 +29,21 @@ const Dashboard = () => {
     if (!user) return
 
     try {
+      console.log('Fetching stats for user:', user.id)
       // Fetch enrolled cohorts
-      const { count: enrolledCohorts } = await supabase
+      const { data: enrolledCohortsData } = await supabase
         .from('student_cohorts')
-        .select('*', { count: 'exact', head: true })
+        .select('id')
         .eq('student_id', user.id)
+      const enrolledCohorts = enrolledCohortsData?.length || 0
 
       // Fetch completed assignments
-      const { count: completedAssignments } = await supabase
+      const { data: completedAssignmentsData } = await supabase
         .from('submissions')
-        .select('*', { count: 'exact', head: true })
+        .select('id')
         .eq('student_id', user.id)
         .eq('status', 'graded')
+      const completedAssignments = completedAssignmentsData?.length || 0
 
       // Fetch assignments for student's cohorts
       const { data: studentCohorts } = await supabase
@@ -50,10 +54,11 @@ const Dashboard = () => {
       const cohortIds = studentCohorts?.map(sc => (sc as { cohort_id: string }).cohort_id) || []
 
       if (cohortIds.length > 0) {
-        const { count: totalAssignments } = await supabase
+        const { data: totalAssignmentsData } = await supabase
           .from('assignments')
-          .select('*', { count: 'exact', head: true })
+          .select('id')
           .in('cohort_id', cohortIds)
+        const totalAssignments = totalAssignmentsData?.length || 0
 
         const pendingAssignments = (totalAssignments || 0) - (completedAssignments || 0)
 
@@ -99,6 +104,7 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error('Error fetching stats:', error)
+      toast.error('Failed to load dashboard data')
     } finally {
       setLoading(false)
     }
