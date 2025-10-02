@@ -311,4 +311,3 @@ const CohortDetail = () => {
 }
 
 export default CohortDetail
-

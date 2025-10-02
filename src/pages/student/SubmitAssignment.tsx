@@ -59,7 +59,7 @@ const SubmitAssignment = () => {
     }
   }
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
 
     if (!validateForm() || !profile?.user_id || !id) return
