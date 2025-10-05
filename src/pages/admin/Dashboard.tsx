@@ -105,6 +105,13 @@ const Dashboard = () => {
               <h3 className="font-semibold text-dark">Manage Students</h3>
               <p className="text-sm text-gray-600 mt-1">View and manage students</p>
             </a>
+            <a
+              href="/admin/announcements"
+              className="p-4 border-2 border-gray-200 rounded-lg hover:border-primary hover:bg-gray-50 transition-all"
+            >
+              <h3 className="font-semibold text-dark">Manage Announcements</h3>
+              <p className="text-sm text-gray-600 mt-1">Create and share updates with students</p>
+            </a>
           </div>
         </div>
 

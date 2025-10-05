@@ -22,6 +22,13 @@ export interface Profile {
   updated_at: string
 }
 
+export interface Announcement {
+  id: number;
+  title: string;
+  content: string;
+  created_at: string;
+}
+
 // Joined Types for queries
 export interface StudentWithProfile extends User {
   profiles?: Profile
