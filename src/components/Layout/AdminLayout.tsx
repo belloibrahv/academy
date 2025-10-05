@@ -3,11 +3,9 @@ import { useAuth } from '../../contexts/AuthContext'
 import {
   LayoutDashboard,
   Users,
-  FileText,
   LogOut,
   Menu,
   X,
-  Link2,
 } from 'lucide-react'
 import { useState } from 'react'
 import { LayoutProps } from '../../types'
@@ -36,24 +34,9 @@ const AdminLayout = ({ children }: LayoutProps) => {
       icon: LayoutDashboard,
     },
     {
-      name: 'Cohorts',
-      href: '/admin/cohorts',
-      icon: Users,
-    },
-    {
       name: 'Students',
       href: '/admin/students',
       icon: Users,
-    },
-    {
-      name: 'Invite Links',
-      href: '/admin/invite-links',
-      icon: Link2,
-    },
-    {
-      name: 'Assignments',
-      href: '/admin/assignments',
-      icon: FileText,
     },
   ]
 
@@ -160,4 +143,3 @@ const AdminLayout = ({ children }: LayoutProps) => {
 }
 
 export default AdminLayout
-

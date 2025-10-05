@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import AdminLayout from '../../components/Layout/AdminLayout'
 import { supabase } from '../../lib/supabase'
-import { Plus, Search, Phone } from 'lucide-react'
+import { Search, Mail } from 'lucide-react'
 import { Profile } from '../../types'
 import toast from 'react-hot-toast'
 
@@ -33,8 +33,7 @@ const StudentList = () => {
   }
 
   const filteredStudents = students.filter((student) =>
-    student.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.user_id.toLowerCase().includes(searchTerm.toLowerCase())
+    student.full_name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const getStatusColor = (status: string): string => {
@@ -69,10 +68,6 @@ const StudentList = () => {
             <h1 className="text-3xl font-bold text-dark">Students</h1>
             <p className="text-gray-600 mt-2">Manage your academy students</p>
           </div>
-          <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
-            <Plus className="h-5 w-5" />
-            Invite Student
-          </button>
         </div>
 
         {/* Search Bar */}
@@ -99,7 +94,7 @@ const StudentList = () => {
                     Student
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Contact
+                    Email
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
@@ -125,18 +120,15 @@ const StudentList = () => {
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-dark">{student.full_name}</div>
-                            <div className="text-sm text-gray-500">ID: {student.user_id.slice(0, 8)}...</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col gap-1">
-                          {student.phone_number && (
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <Phone className="h-4 w-4" />
-                              {student.phone_number}
-                            </div>
-                          )}
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <Mail className="h-4 w-4" />
+                            {student.user_id}
+                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -169,4 +161,3 @@ const StudentList = () => {
 }
 
 export default StudentList
-

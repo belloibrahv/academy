@@ -2,8 +2,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import {
   LayoutDashboard,
-  FileText,
-  TrendingUp,
   LogOut,
   Menu,
   X,
@@ -33,16 +31,6 @@ const StudentLayout = ({ children }: LayoutProps) => {
       name: 'Dashboard',
       href: '/student/dashboard',
       icon: LayoutDashboard,
-    },
-    {
-      name: 'Assignments',
-      href: '/student/assignments',
-      icon: FileText,
-    },
-    {
-      name: 'Progress',
-      href: '/student/progress',
-      icon: TrendingUp,
     },
   ]
 
@@ -149,4 +137,3 @@ const StudentLayout = ({ children }: LayoutProps) => {
 }
 
 export default StudentLayout
-

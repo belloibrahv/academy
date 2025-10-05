@@ -1,17 +1,13 @@
 import { useEffect, useState } from 'react'
 import AdminLayout from '../../components/Layout/AdminLayout'
 import { supabase } from '../../lib/supabase'
-import { Users, GraduationCap, FileText, Clock } from 'lucide-react'
+import { Users } from 'lucide-react'
 import { AdminDashboardStats } from '../../types'
 
 const Dashboard = () => {
   const [stats, setStats] = useState<AdminDashboardStats>({
     totalStudents: 0,
     activeStudents: 0,
-    totalCohorts: 0,
-    activeCohorts: 0,
-    pendingSubmissions: 0,
-    completionRate: 0,
   })
   const [loading, setLoading] = useState(true)
 
@@ -34,42 +30,9 @@ const Dashboard = () => {
         .eq('role', 'student')
         .eq('registration_status', 'active')
 
-      // Fetch total cohorts
-      const { count: totalCohorts } = await supabase
-        .from('cohorts')
-        .select('*', { count: 'exact', head: true })
-
-      // Fetch active cohorts
-      const { count: activeCohorts } = await supabase
-        .from('cohorts')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'active')
-
-      // Fetch pending submissions
-      const { count: pendingSubmissions } = await supabase
-        .from('submissions')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'pending')
-
-      // Calculate completion rate
-      const { data: completedData } = await supabase
-        .from('student_cohorts')
-        .select('completion_status')
-      
-      const avgCompletion = completedData && completedData.length > 0
-        ? completedData.reduce((acc, curr) => {
-            const status = (curr as { completion_status: number }).completion_status
-            return acc + (status || 0)
-          }, 0) / completedData.length
-        : 0
-
       setStats({
         totalStudents: totalStudents || 0,
         activeStudents: activeStudents || 0,
-        totalCohorts: totalCohorts || 0,
-        activeCohorts: activeCohorts || 0,
-        pendingSubmissions: pendingSubmissions || 0,
-        completionRate: Math.round(avgCompletion),
       })
     } catch (error) {
       console.error('Error fetching stats:', error)
@@ -85,27 +48,6 @@ const Dashboard = () => {
       subtitle: `${stats.activeStudents} active`,
       icon: Users,
       color: 'bg-blue-500',
-    },
-    {
-      title: 'Active Cohorts',
-      value: stats.activeCohorts,
-      subtitle: `${stats.totalCohorts} total`,
-      icon: GraduationCap,
-      color: 'bg-green-500',
-    },
-    {
-      title: 'Pending Submissions',
-      value: stats.pendingSubmissions,
-      subtitle: 'Awaiting review',
-      icon: Clock,
-      color: 'bg-warning',
-    },
-    {
-      title: 'Avg. Completion',
-      value: `${stats.completionRate}%`,
-      subtitle: 'Across all cohorts',
-      icon: FileText,
-      color: 'bg-primary',
     },
   ]
 
@@ -161,21 +103,7 @@ const Dashboard = () => {
               className="p-4 border-2 border-gray-200 rounded-lg hover:border-primary hover:bg-gray-50 transition-all"
             >
               <h3 className="font-semibold text-dark">Manage Students</h3>
-              <p className="text-sm text-gray-600 mt-1">View and invite students to cohorts</p>
-            </a>
-            <a
-              href="/admin/assignments/create"
-              className="p-4 border-2 border-gray-200 rounded-lg hover:border-primary hover:bg-gray-50 transition-all"
-            >
-              <h3 className="font-semibold text-dark">Create Assignment</h3>
-              <p className="text-sm text-gray-600 mt-1">Add new tasks for your students</p>
-            </a>
-            <a
-              href="/admin/assignments"
-              className="p-4 border-2 border-gray-200 rounded-lg hover:border-primary hover:bg-gray-50 transition-all"
-            >
-              <h3 className="font-semibold text-dark">Review Submissions</h3>
-              <p className="text-sm text-gray-600 mt-1">Grade pending student work</p>
+              <p className="text-sm text-gray-600 mt-1">View and manage students</p>
             </a>
           </div>
         </div>
@@ -191,4 +119,3 @@ const Dashboard = () => {
 }
 
 export default Dashboard
-
