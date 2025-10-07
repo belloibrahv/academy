@@ -178,6 +178,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (profileError) throw profileError
 
+      // Add a new activity for the new student
+      const { error: activityError } = await supabase.from('activity').insert({
+        type: 'new_student',
+        message: `${profileData.full_name} has registered.`,
+        metadata: {
+          user_id: authData.user.id,
+          full_name: profileData.full_name,
+        },
+      });
+
+      if (activityError) {
+        // Log the error but don't block the user from signing up
+        console.error('Error creating activity:', activityError);
+      }
+
       toast.success('Account created successfully!')
       return { data: authData.user, error: null }
     } catch (error) {

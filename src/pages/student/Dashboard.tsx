@@ -1,28 +1,28 @@
-import { useEffect, useState } from 'react'
-import StudentLayout from '../../components/Layout/StudentLayout'
-import { useAuth } from '../../contexts/AuthContext'
-import { supabase } from '../../lib/supabase'
-import { Announcement } from '../../types.ts'
+import { useEffect, useState } from 'react';
+import StudentLayout from '../../components/Layout/StudentLayout';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
+import { Announcement } from '../../types.ts';
 
 const Dashboard = () => {
-  const { profile } = useAuth()
-  const [announcements, setAnnouncements] = useState<Announcement[]>([])
-  const [loading, setLoading] = useState(true)
+  const { profile } = useAuth();
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchAnnouncements()
-  }, [])
+    fetchAnnouncements();
+  }, []);
 
   const fetchAnnouncements = async () => {
-    setLoading(true)
-    const { data, error } = await supabase.from('announcements').select('*').order('created_at', { ascending: false }).limit(5)
+    setLoading(true);
+    const { data, error } = await supabase.from('announcements').select('*').order('created_at', { ascending: false }).limit(5);
     if (error) {
-      console.error('Error fetching announcements:', error)
+      console.error('Error fetching announcements:', error);
     } else {
-      setAnnouncements(data || [])
+      setAnnouncements(data || []);
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   return (
     <StudentLayout>
@@ -31,6 +31,20 @@ const Dashboard = () => {
         <div>
           <h1 className="text-3xl font-bold text-dark">My Dashboard</h1>
           <p className="text-gray-600 mt-2">Welcome, {profile?.full_name || 'student'}!</p>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-white rounded-xl shadow-card p-6">
+          <h2 className="text-xl font-bold text-dark mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a
+              href="/student/submissions"
+              className="p-4 border-2 border-gray-200 rounded-lg hover:border-primary hover:bg-gray-50 transition-all"
+            >
+              <h3 className="font-semibold text-dark">Submit Assignment</h3>
+              <p className="text-sm text-gray-600 mt-1">Submit your completed assignments.</p>
+            </a>
+          </div>
         </div>
 
         <div className="bg-white rounded-xl shadow-card p-6">
@@ -62,7 +76,7 @@ const Dashboard = () => {
         </div>
       </div>
     </StudentLayout>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;

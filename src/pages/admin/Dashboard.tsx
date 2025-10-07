@@ -1,82 +1,64 @@
-import { useEffect, useState } from 'react'
-import AdminLayout from '../../components/Layout/AdminLayout'
-import { supabase } from '../../lib/supabase'
-import { Users } from 'lucide-react'
-import { AdminDashboardStats } from '../../types.ts'
+import { useEffect, useState } from 'react';
+import AdminLayout from '../../components/Layout/AdminLayout';
+import { supabase } from '../../lib/supabase';
+import { Users, UserPlus, FileCheck, UserCheck, Megaphone } from 'lucide-react';
+import { AdminDashboardStats, Activity } from '../../types.ts';
+import { formatDistanceToNow } from 'date-fns';
+import { Link } from 'react-router-dom';
+
+const activityIcons = {
+  new_student: UserPlus,
+  new_submission: FileCheck,
+  new_enrollment: UserCheck,
+  new_announcement: Megaphone,
+};
 
 const Dashboard = () => {
   const [stats, setStats] = useState<AdminDashboardStats>({
     totalStudents: 0,
     activeStudents: 0,
-  })
-  const [loading, setLoading] = useState(true)
+    recentActivity: [],
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchStats()
-  }, [])
+    fetchStats();
+  }, []);
 
   const fetchStats = async (): Promise<void> => {
     try {
-      // Fetch total students
-      const { data: totalStudentsData } = await supabase
+      // Fetch total students count
+      const { count: totalStudents } = await supabase
         .from('profiles')
-        .select('id')
-        .eq('role', 'student')
-      const totalStudents = totalStudentsData?.length || 0
+        .select('*', { count: 'exact', head: true })
+        .eq('role', 'student');
 
-      // Fetch active students
-      const { data: activeStudentsData } = await supabase
+      // Fetch active students count
+      const { count: activeStudents } = await supabase
         .from('profiles')
-        .select('id')
+        .select('*', { count: 'exact', head: true })
         .eq('role', 'student')
-        .eq('registration_status', 'active')
-      const activeStudents = activeStudentsData?.length || 0
+        .eq('registration_status', 'active');
 
-<<<<<<< HEAD
-=======
-      // Fetch total cohorts
-      const { data: totalCohortsData } = await supabase
-        .from('cohorts')
-        .select('id')
-      const totalCohorts = totalCohortsData?.length || 0
+      // Fetch recent activity
+      const { data: recentActivityData } = await supabase
+        .from('activity')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+      const recentActivity = recentActivityData || [];
 
-      // Fetch active cohorts
-      const { data: activeCohortsData } = await supabase
-        .from('cohorts')
-        .select('id')
-        .eq('status', 'active')
-      const activeCohorts = activeCohortsData?.length || 0
-
-      // Fetch pending submissions
-      const { data: pendingSubmissionsData } = await supabase
-        .from('submissions')
-        .select('id')
-        .eq('status', 'pending')
-      const pendingSubmissions = pendingSubmissionsData?.length || 0
-
-      // Calculate completion rate
-      const { data: completedData } = await supabase
-        .from('student_cohorts')
-        .select('completion_status')
-      
-      const avgCompletion = completedData && completedData.length > 0
-        ? completedData.reduce((acc, curr) => {
-            const status = (curr as { completion_status: number }).completion_status
-            return acc + (status || 0)
-          }, 0) / completedData.length
-        : 0
-
->>>>>>> 1066b71 (Fix critical Supabase query syntax errors and improve testing)
       setStats({
         totalStudents: totalStudents || 0,
         activeStudents: activeStudents || 0,
-      })
+        recentActivity: recentActivity,
+      });
     } catch (error) {
-      console.error('Error fetching stats:', error)
+      console.error('Error fetching stats:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const statCards = [
     {
@@ -86,7 +68,7 @@ const Dashboard = () => {
       icon: Users,
       color: 'bg-blue-500',
     },
-  ]
+  ];
 
   if (loading) {
     return (
@@ -95,8 +77,26 @@ const Dashboard = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
       </AdminLayout>
-    )
+    );
   }
+
+  const renderActivityMessage = (activity: Activity) => {
+    if (activity.type === 'new_submission' && activity.metadata?.assignment_id) {
+      return (
+        <Link to={`/admin/assignments/${activity.metadata.assignment_id}`} className="hover:underline">
+          {activity.message}
+        </Link>
+      );
+    }
+    if (activity.metadata?.student_id) {
+      return (
+        <Link to={`/admin/students/${activity.metadata.student_id}`} className="hover:underline">
+          {activity.message}
+        </Link>
+      );
+    }
+    return activity.message;
+  };
 
   return (
     <AdminLayout>
@@ -110,7 +110,7 @@ const Dashboard = () => {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {statCards.map((card) => {
-            const Icon = card.icon
+            const Icon = card.icon;
             return (
               <div
                 key={card.title}
@@ -127,7 +127,7 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
-            )
+            );
           })}
         </div>
 
@@ -152,14 +152,35 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Recent Activity Placeholder */}
+        {/* Recent Activity */}
         <div className="bg-white rounded-xl shadow-card p-6">
           <h2 className="text-xl font-bold text-dark mb-4">Recent Activity</h2>
-          <p className="text-gray-500 text-center py-8">No recent activity to display</p>
+          {stats.recentActivity.length > 0 ? (
+            <ul className="space-y-4">
+              {stats.recentActivity.map((activity: Activity) => {
+                const Icon = activityIcons[activity.type] || Users;
+                return (
+                  <li key={activity.id} className="flex items-start space-x-4">
+                    <div className='bg-gray-200 p-2 rounded-full'>
+                      <Icon className="h-4 w-4 text-gray-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-800">{renderActivityMessage(activity)}</p>
+                      <p className="text-xs text-gray-500">
+                        {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p className="text-gray-500 text-center py-8">No recent activity to display</p>
+          )}
         </div>
       </div>
     </AdminLayout>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;

@@ -1,30 +1,52 @@
-import { useState } from 'react'
-import { supabase } from '../../lib/supabase'
-import { useNavigate } from 'react-router-dom'
-import AdminLayout from '../../components/Layout/AdminLayout'
+import { useState } from 'react';
+import { supabase } from '../../lib/supabase';
+import { useNavigate } from 'react-router-dom';
+import AdminLayout from '../../components/Layout/AdminLayout';
+import { useAuth } from '../../contexts/AuthContext';
 
 const NewAnnouncement = () => {
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
-  const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { profile } = useAuth();
 
   const handleSave = async () => {
     if (!title || !content) {
-      alert('Please fill in all fields.')
-      return
+      alert('Please fill in all fields.');
+      return;
     }
 
-    setLoading(true)
-    const { error } = await (supabase as any).from('announcements').insert([{ title, content }])
+    setLoading(true);
+    const { data: announcement, error } = await (supabase as any)
+      .from('announcements')
+      .insert([{ title, content }])
+      .select();
+
     if (error) {
-      console.error('Error creating announcement:', error)
-      alert('Failed to create announcement.')
+      console.error('Error creating announcement:', error);
+      alert('Failed to create announcement.');
     } else {
-      navigate('/admin/announcements')
+      // Add activity log
+      if (announcement && profile) {
+        const { error: activityError } = await supabase.from('activity').insert({
+          type: 'new_announcement',
+          message: `New announcement: ${title}`,
+          metadata: {
+            announcement_id: announcement[0].id,
+            author_id: profile.id,
+          },
+        });
+
+        if (activityError) {
+          console.error('Error creating activity:', activityError);
+        }
+      }
+
+      navigate('/admin/announcements');
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   return (
     <AdminLayout>
@@ -74,7 +96,7 @@ const NewAnnouncement = () => {
         </div>
       </div>
     </AdminLayout>
-  )
-}
+  );
+};
 
-export default NewAnnouncement
+export default NewAnnouncement;

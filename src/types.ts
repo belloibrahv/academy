@@ -36,6 +36,14 @@ export interface Course {
   created_at: string;
 }
 
+export interface Activity {
+  id: number;
+  type: 'new_student' | 'new_submission';
+  message: string;
+  created_at: string;
+  metadata?: Record<string, any>;
+}
+
 
 // Joined Types for queries
 export interface StudentWithProfile extends User {
@@ -80,6 +88,7 @@ export interface LayoutProps {
 export interface AdminDashboardStats {
   totalStudents: number
   activeStudents: number
+  recentActivity: Activity[]
 }
 
 export interface StudentDashboardStats {}

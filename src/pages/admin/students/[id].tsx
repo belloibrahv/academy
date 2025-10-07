@@ -1,50 +1,50 @@
-import { useState, useEffect } from 'react'
-import { supabase } from '../../../lib/supabase'
-import { useNavigate, useParams, Link } from 'react-router-dom'
-import AdminLayout from '../../../components/Layout/AdminLayout'
-import { Profile } from '../../../types.ts'
-import { ArrowLeft, Mail, Calendar, Info } from 'lucide-react'
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import AdminLayout from '../../../components/Layout/AdminLayout';
+import { supabase } from '../../../lib/supabase';
+import { Profile, Activity } from '../../../types';
+import { formatDistanceToNow } from 'date-fns';
+import { User, Mail, Calendar } from 'lucide-react';
 
-const StudentDetail = () => {
-  const [student, setStudent] = useState<Profile | null>(null)
-  const [loading, setLoading] = useState(true)
-  const navigate = useNavigate()
-  const { id } = useParams()
+const StudentProfilePage = () => {
+  const { id } = useParams<{ id: string }>();
+  const [student, setStudent] = useState<Profile | null>(null);
+  const [activity, setActivity] = useState<Activity[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStudent = async () => {
-      if (!id) return
+    const fetchStudentData = async () => {
+      if (!id) return;
       try {
-        const { data, error } = await supabase
+        // Fetch student profile
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
-          .select('*, user:users(email)')
+          .select('*')
           .eq('id', id)
-          .single()
+          .single();
 
-        if (error || !data) {
-          throw error || new Error('Student not found')
-        }
-        
-        setStudent(data as Profile)
+        if (profileError) throw profileError;
+        setStudent(profileData);
+
+        // Fetch student activity
+        const { data: activityData, error: activityError } = await supabase
+          .from('activity')
+          .select('*')
+          .eq('metadata->>student_id', id)
+          .order('created_at', { ascending: false });
+
+        if (activityError) throw activityError;
+        setActivity(activityData || []);
+
       } catch (error) {
-        console.error('Error fetching student details:', error)
-        navigate('/admin/students')
+        console.error('Error fetching student data:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchStudent()
-  }, [id, navigate])
-
-  const getStatusColor = (status: string): string => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-800'
-      case 'completed': return 'bg-blue-100 text-blue-800'
-      case 'inactive': return 'bg-gray-100 text-gray-800'
-      default: return 'bg-yellow-100 text-yellow-800'
-    }
-  }
+    fetchStudentData();
+  }, [id]);
 
   if (loading) {
     return (
@@ -53,79 +53,72 @@ const StudentDetail = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
       </AdminLayout>
-    )
+    );
   }
 
   if (!student) {
     return (
       <AdminLayout>
-        <p className="text-center text-gray-500">Student not found.</p>
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Student not found</h1>
+          <p className="text-gray-600">The requested student could not be found.</p>
+        </div>
       </AdminLayout>
-    )
+    );
   }
 
   return (
     <AdminLayout>
-      <div>
-        <Link to="/admin/students" className="inline-flex items-center gap-2 text-primary hover:underline mb-6">
-          <ArrowLeft size={18} />
-          Back to Students
-        </Link>
-        
-        <div className="bg-white rounded-xl shadow-card p-6 md:p-8">
-          <div className="flex flex-col md:flex-row md:items-center gap-6">
-            <div className="h-24 w-24 flex-shrink-0 rounded-full bg-primary flex items-center justify-center text-white text-4xl font-bold">
-              {student.full_name.charAt(0)}
+      <div className="space-y-6">
+        {/* Student Profile Header */}
+        <div className="bg-white rounded-xl shadow-card p-6">
+          <div className="flex items-center space-x-4">
+            <div className="bg-primary text-white rounded-full p-4">
+              <User size={32} />
             </div>
-            <div className="flex-grow">
-              <h1 className="text-3xl font-bold text-dark">{student.full_name}</h1>
-              <p className="text-gray-600 mt-1">Student Profile</p>
+            <div>
+              <h1 className="text-2xl font-bold text-dark">{student.full_name}</h1>
+              <p className="text-gray-600">Student</p>
             </div>
           </div>
-
-          <div className="border-t border-gray-200 mt-8 pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="flex items-start gap-3">
-                <div className="bg-blue-100 p-2 rounded-full">
-                  <Mail size={20} className="text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium text-dark">{student.user?.email || 'N/A'}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="bg-green-100 p-2 rounded-full">
-                  <Calendar size={20} className="text-green-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Joined Date</p>
-                  <p className="font-medium text-dark">{new Date(student.created_at).toLocaleDateString()}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="bg-yellow-100 p-2 rounded-full">
-                  <Info size={20} className="text-yellow-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Registration Status</p>
-                  <span className={`px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(student.registration_status)}`}>
-                    {student.registration_status}
-                  </span>
-                </div>
-              </div>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+            <div className="flex items-center space-x-2">
+              <Mail size={16} className="text-gray-500" />
+              <span>{student.email || 'N/A'}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Calendar size={16} className="text-gray-500" />
+              <span>Joined {formatDistanceToNow(new Date(student.created_at), { addSuffix: true })}</span>
             </div>
           </div>
         </div>
 
-        {/* Placeholder for future content like enrolled courses */}
-        <div className="bg-white rounded-xl shadow-card p-6 mt-6">
-          <h2 className="text-xl font-bold text-dark">Enrolled Courses</h2>
-          <p className="text-center text-gray-500 py-8">No courses enrolled yet.</p>
+        {/* Student Activity Feed */}
+        <div className="bg-white rounded-xl shadow-card p-6">
+          <h2 className="text-xl font-bold text-dark mb-4">Recent Activity</h2>
+          {activity.length > 0 ? (
+            <ul className="space-y-4">
+              {activity.map((item) => (
+                <li key={item.id} className="flex items-start space-x-4">
+                  <div className="bg-gray-200 p-2 rounded-full">
+                    {/* You can add icons here based on activity type */}
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-800">{item.message}</p>
+                    <p className="text-xs text-gray-500">
+                      {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-500 text-center py-8">No activity to display for this student.</p>
+          )}
         </div>
       </div>
     </AdminLayout>
-  )
-}
+  );
+};
 
-export default StudentDetail
+export default StudentProfilePage;
