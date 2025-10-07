@@ -1,13 +1,13 @@
 import { useState } from 'react'
-import { supabase } from '../../../lib/supabase'
-import { useRouter } from 'next/router'
+import { supabase } from '../../lib/supabase'
+import { useNavigate } from 'react-router-dom'
 import AdminLayout from '../../components/Layout/AdminLayout'
 
 const NewAnnouncement = () => {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
+  const navigate = useNavigate()
 
   const handleSave = async () => {
     if (!title || !content) {
@@ -16,12 +16,12 @@ const NewAnnouncement = () => {
     }
 
     setLoading(true)
-    const { error } = await supabase.from('announcements').insert([{ title, content }])
+    const { error } = await (supabase as any).from('announcements').insert([{ title, content }])
     if (error) {
       console.error('Error creating announcement:', error)
       alert('Failed to create announcement.')
     } else {
-      router.push('/admin/announcements')
+      navigate('/admin/announcements')
     }
     setLoading(false)
   }
@@ -58,7 +58,7 @@ const NewAnnouncement = () => {
         </div>
         <div className="mt-6 flex justify-end space-x-4">
           <button
-            onClick={() => router.push('/admin/announcements')}
+            onClick={() => navigate('/admin/announcements')}
             className="text-gray-600 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors"
             disabled={loading}
           >

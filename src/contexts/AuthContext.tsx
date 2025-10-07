@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
-import { Profile, AuthContextType } from '../types'
+import { Profile, AuthContextType } from '../types.ts'
 import { handlePendingEnrollment } from '../utils/enrollmentHandler'
 import toast from 'react-hot-toast'
 
@@ -161,4 +161,3 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
-

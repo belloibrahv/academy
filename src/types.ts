@@ -1,4 +1,3 @@
-// Database Types
 export interface User {
   id: string
   email: string
@@ -20,6 +19,7 @@ export interface Profile {
   registration_status: 'pending' | 'active' | 'completed' | 'inactive'
   created_at: string
   updated_at: string
+  user?: User;
 }
 
 export interface Announcement {
@@ -28,6 +28,14 @@ export interface Announcement {
   content: string;
   created_at: string;
 }
+
+export interface Course {
+  id: number;
+  title: string;
+  description: string;
+  created_at: string;
+}
+
 
 // Joined Types for queries
 export interface StudentWithProfile extends User {

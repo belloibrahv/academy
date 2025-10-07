@@ -6,6 +6,8 @@ import {
   LogOut,
   Menu,
   X,
+  Megaphone,
+  BookOpen,
 } from 'lucide-react'
 import { useState } from 'react'
 import { LayoutProps } from '../../types'
@@ -38,9 +40,19 @@ const AdminLayout = ({ children }: LayoutProps) => {
       href: '/admin/students',
       icon: Users,
     },
+    {
+      name: 'Announcements',
+      href: '/admin/announcements',
+      icon: Megaphone,
+    },
+    {
+      name: 'Courses',
+      href: '/admin/courses',
+      icon: BookOpen,
+    },
   ]
 
-  const isActive = (path: string): boolean => location.pathname === path
+  const isActive = (path: string): boolean => location.pathname.startsWith(path)
 
   return (
     <div className="min-h-screen bg-background">

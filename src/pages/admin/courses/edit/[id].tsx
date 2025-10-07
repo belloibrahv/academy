@@ -1,69 +1,59 @@
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../../../../lib/supabase'
 import { useNavigate, useParams } from 'react-router-dom'
 import AdminLayout from '../../../../components/Layout/AdminLayout'
-import { Announcement } from '../../../../types.ts'
+import { Course } from '../../../../types.ts'
 
-const EditAnnouncement = () => {
-  const [announcement, setAnnouncement] = useState<Announcement | null>(null)
+const EditCourse = () => {
   const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
+  const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
   const { id } = useParams()
 
   useEffect(() => {
-    if (id) {
-      fetchAnnouncement()
+    const fetchCourse = async () => {
+      if (!id) return
+      const { data, error } = await (supabase as any).from('courses').select('*').eq('id', id).single()
+      if (error) {
+        console.error('Error fetching course:', error)
+        navigate('/admin/courses')
+      } else {
+        const courseData = data as Course
+        setTitle(courseData.title)
+        setDescription(courseData.description)
+      }
+      setLoading(false)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
 
-  const fetchAnnouncement = async () => {
-    setLoading(true)
-    const { data, error } = await (supabase as any).from('announcements').select('*').eq('id', id).single()
-    if (error) {
-      console.error('Error fetching announcement:', error)
-      navigate('/admin/announcements')
-    } else {
-      const announcementData = data as Announcement
-      setAnnouncement(announcementData)
-      setTitle(announcementData.title)
-      setContent(announcementData.content)
-    }
-    setLoading(false)
-  }
+    fetchCourse()
+  }, [id, navigate])
 
   const handleUpdate = async () => {
-    if (!title || !content) {
-      alert('Please fill in all fields.')
+    if (!title) {
+      alert('Please fill in at least the title.')
       return
     }
+    if(!id) return;
 
     setLoading(true)
-    const { error } = await (supabase as any).from('announcements').update({ title, content }).eq('id', id)
+    const { error } = await (supabase as any).from('courses').update({ title, description }).eq('id', id)
     if (error) {
-      console.error('Error updating announcement:', error)
-      alert('Failed to update announcement.')
+      console.error('Error updating course:', error)
+      alert('Failed to update course.')
     } else {
-      navigate('/admin/announcements')
+      navigate('/admin/courses')
     }
     setLoading(false)
   }
 
-  if (loading || !announcement) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-96">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      </AdminLayout>
-    )
+  if (loading) {
+    return <AdminLayout><p>Loading...</p></AdminLayout>
   }
 
   return (
     <AdminLayout>
-      <h1 className="text-3xl font-bold text-dark mb-6">Edit Announcement</h1>
+      <h1 className="text-3xl font-bold text-dark mb-6">Edit Course</h1>
       <div className="bg-white rounded-xl shadow-card p-6">
         <div className="space-y-4">
           <div>
@@ -79,13 +69,13 @@ const EditAnnouncement = () => {
             />
           </div>
           <div>
-            <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
-              Content
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+              Description
             </label>
             <textarea
-              id="content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               rows={6}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
             />
@@ -93,7 +83,7 @@ const EditAnnouncement = () => {
         </div>
         <div className="mt-6 flex justify-end space-x-4">
           <button
-            onClick={() => navigate('/admin/announcements')}
+            onClick={() => navigate('/admin/courses')}
             className="text-gray-600 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors"
             disabled={loading}
           >
@@ -112,4 +102,4 @@ const EditAnnouncement = () => {
   )
 }
 
-export default EditAnnouncement
+export default EditCourse

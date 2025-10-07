@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Eye, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { RegisterFormData } from '../types'
+import { RegisterFormData } from '../types.ts'
 
 const Register = () => {
   const [submitting, setSubmitting] = useState(false)

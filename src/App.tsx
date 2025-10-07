@@ -9,6 +9,10 @@ import Register from './pages/Register'
 import AdminDashboard from './pages/admin/Dashboard'
 import StudentDashboard from './pages/student/Dashboard'
 import StudentList from './pages/admin/StudentList'
+import Courses from './pages/admin/courses'
+import NewCourse from './pages/admin/courses/new'
+import EditCourse from './pages/admin/courses/edit/[id]'
+import StudentDetail from './pages/admin/students/[id]'
 
 function App() {
   return (
@@ -34,6 +38,38 @@ function App() {
               element={
                 <ProtectedRoute role="admin">
                   <StudentList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/students/:id"
+              element={
+                <ProtectedRoute role="admin">
+                  <StudentDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/courses"
+              element={
+                <ProtectedRoute role="admin">
+                  <Courses />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/courses/new"
+              element={
+                <ProtectedRoute role="admin">
+                  <NewCourse />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/courses/edit/:id"
+              element={
+                <ProtectedRoute role="admin">
+                  <EditCourse />
                 </ProtectedRoute>
               }
             />

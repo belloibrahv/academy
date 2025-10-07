@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import StudentLayout from '../../components/Layout/StudentLayout'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
-import { Announcement } from '../../types'
+import { Announcement } from '../../types.ts'
 
 const Dashboard = () => {
   const { profile } = useAuth()

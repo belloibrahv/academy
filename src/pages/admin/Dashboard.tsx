@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import AdminLayout from '../../components/Layout/AdminLayout'
 import { supabase } from '../../lib/supabase'
 import { Users } from 'lucide-react'
-import { AdminDashboardStats } from '../../types'
+import { AdminDashboardStats } from '../../types.ts'
 
 const Dashboard = () => {
   const [stats, setStats] = useState<AdminDashboardStats>({

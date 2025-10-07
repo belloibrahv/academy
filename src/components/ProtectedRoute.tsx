@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { ProtectedRouteProps } from '../types'
+import { ProtectedRouteProps } from '../types.ts'
 
 const ProtectedRoute = ({ children, role }: ProtectedRouteProps) => {
   const { user, profile, loading } = useAuth()
@@ -30,4 +30,3 @@ const ProtectedRoute = ({ children, role }: ProtectedRouteProps) => {
 }
 
 export default ProtectedRoute
-

@@ -71,6 +71,46 @@ export interface Database {
           updated_at?: string
         }
       }
+      announcements: {
+        Row: {
+          id: number;
+          title: string;
+          content: string;
+          created_at: string;
+        }
+        Insert: {
+          id?: number;
+          title: string;
+          content: string;
+          created_at?: string;
+        }
+        Update: {
+          id?: number;
+          title?: string;
+          content?: string;
+          created_at?: string;
+        }
+      }
+      courses: {
+        Row: {
+          id: number;
+          title: string;
+          description: string;
+          created_at: string;
+        }
+        Insert: {
+          id?: number;
+          title: string;
+          description: string;
+          created_at?: string;
+        }
+        Update: {
+          id?: number;
+          title?: string;
+          description?: string;
+          created_at?: string;
+        }
+      }
     }
     Enums: {
       user_role: 'admin' | 'student'
@@ -78,4 +118,3 @@ export interface Database {
     }
   }
 }
-

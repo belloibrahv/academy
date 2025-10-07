@@ -2,7 +2,7 @@ import { useState, FormEvent, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Eye, EyeOff } from 'lucide-react'
-import { LoginFormData } from '../types'
+import { LoginFormData } from '../types.ts'
 import toast from 'react-hot-toast'
 
 const Login = () => {
@@ -126,4 +126,3 @@ const Login = () => {
 }
 
 export default Login
-

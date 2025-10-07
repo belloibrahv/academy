@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import AdminLayout from '../../components/Layout/AdminLayout'
 import { supabase } from '../../lib/supabase'
 import { Search, Mail } from 'lucide-react'
-import { Profile } from '../../types'
+import { Profile } from '../../types.ts'
 import toast from 'react-hot-toast'
+import { Link } from 'react-router-dom'
 
 const StudentList = () => {
   const [students, setStudents] = useState<Profile[]>([])
@@ -18,7 +19,7 @@ const StudentList = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('*, user:users(email)')
         .eq('role', 'student')
         .order('created_at', { ascending: false })
 
@@ -127,7 +128,7 @@ const StudentList = () => {
                         <div className="flex flex-col gap-1">
                           <div className="flex items-center gap-2 text-sm text-gray-600">
                             <Mail className="h-4 w-4" />
-                            {student.user_id}
+                            {student.user?.email}
                           </div>
                         </div>
                       </td>
@@ -140,7 +141,9 @@ const StudentList = () => {
                         {new Date(student.created_at).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button className="text-primary hover:text-primary-dark">View Details</button>
+                        <Link to={`/admin/students/${student.id}`} className="text-primary hover:text-primary-dark">
+                          View Details
+                        </Link>
                       </td>
                     </tr>
                   ))
